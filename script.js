@@ -1,4 +1,4 @@
-const API = "https://b1-cedy.onrender.com"; // change if needed
+const API = "https://b1-7uce.onrender.com"; // change if needed
 
 let userEmail = "";
 let isAdmin = false;
