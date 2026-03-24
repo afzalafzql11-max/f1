@@ -1,5 +1,6 @@
 const API = "https://missingchild1.onrender.com"; // change if needed
 
+let userEmail = "";
 let isAdmin = false;
 
 /* PAGE SWITCH */
@@ -8,7 +9,6 @@ function showPage(page){
   document.getElementById(page).style.display="block";
   if(page==="dashboard") loadChildren();
 }
-
 showPage("login");
 
 /* SIGNUP */
@@ -39,12 +39,14 @@ function login(){
   .then(r=>r.json())
   .then(d=>{
     if(d.status==="admin"){
-      isAdmin=true;
+      isAdmin = true;
+      userEmail = ""; 
       alert("Admin Login");
       showPage("dashboard");
     }
     else if(d.status==="user"){
-      isAdmin=false;
+      isAdmin = false;
+      userEmail = d.email;   // 🔥 important
       alert("User Login");
       showPage("dashboard");
     }
@@ -60,26 +62,29 @@ function loadChildren(){
   .then(r=>r.json())
   .then(data=>{
     childrenContainer.innerHTML="";
+
     data.forEach(c=>{
-      let div=document.createElement("div");
-      div.className="childCard";
+      let card=document.createElement("div");
+      card.className="childCard";
 
-      let delBtn = isAdmin ? `<button onclick="del(${c.id})">Delete</button>` : "";
+      let delBtn = isAdmin
+        ? `<button onclick="deleteChild(${c.id})">Delete</button>`
+        : "";
 
-      div.innerHTML = `
+      card.innerHTML = `
         <h4>${c.name}</h4>
         <p>Age: ${c.age}</p>
         <p>${c.place}</p>
         ${delBtn}
       `;
 
-      childrenContainer.appendChild(div);
+      childrenContainer.appendChild(card);
     });
   });
 }
 
-/* DELETE */
-function del(id){
+/* DELETE (ADMIN ONLY) */
+function deleteChild(id){
   if(!confirm("Delete child?")) return;
 
   fetch(API+"/delete_child/"+id,{method:"DELETE"})
@@ -102,6 +107,7 @@ function registerChild(){
 function crossCheck(){
   let f=new FormData();
   f.append("photo",check_photo.files[0]);
+  f.append("user_email", userEmail); // 🔥 auto email
 
   fetch(API+"/crosscheck",{method:"POST",body:f})
   .then(r=>r.json())
@@ -110,9 +116,9 @@ function crossCheck(){
 
     if(d.status==="found"){
       result_text.innerHTML =
-        d.match_type==="age_progression" ?
-        "AGE PROGRESSION MATCH FOUND" :
-        "MATCH FOUND";
+        d.match_type==="age_progression"
+        ? "AGE PROGRESSION MATCH FOUND"
+        : "MATCH FOUND";
 
       family_details.innerHTML =
         `Name: ${d.name}<br>Age: ${d.age}<br>Place: ${d.place}`;
@@ -139,8 +145,8 @@ function detectVideo(){
     if(d.status==="found"){
       alert("MATCH FOUND IN VIDEO");
       console.log(d.results);
-    }else{
-      alert("No match found in video");
+    } else {
+      alert("No match found");
     }
   });
 }
