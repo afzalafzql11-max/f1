@@ -79,7 +79,9 @@ function loadChildren(){
   fetch(API+"/get_children")
   .then(r=>r.json())
   .then(data=>{
-    childrenContainer.innerHTML="";
+
+    const container = document.getElementById("childrenContainer"); // ✅ FIX
+    container.innerHTML="";
 
     data.forEach(c=>{
       let card=document.createElement("div");
@@ -96,12 +98,11 @@ function loadChildren(){
         ${delBtn}
       `;
 
-      childrenContainer.appendChild(card);
+      container.appendChild(card);
     });
   })
   .catch(()=>alert("❌ Failed to load children"));
 }
-
 /* ---------------- DELETE ---------------- */
 function deleteChild(id){
   if(!confirm("Delete child?")) return;
