@@ -89,15 +89,60 @@ function registerChild(){
   fetch(API+"/register_child",{method:"POST",body:f})
   .then(()=>showPage("dashboard"));
 }
+function showPopup(title, message){
+  document.getElementById("popup-title").innerText = title;
+  document.getElementById("popup-message").innerText = message;
+  document.getElementById("popup").classList.remove("hidden");
+}
 
+function closePopup(){
+  document.getElementById("popup").classList.add("hidden");
+}
 /* CROSSCHECK */
 function crossCheck(){
+
+  if(!check_photo.files[0]){
+    alert("Upload image first");
+    return;
+  }
+
   let f=new FormData();
   f.append("photo",check_photo.files[0]);
 
   fetch(API+"/crosscheck",{method:"POST",body:f})
   .then(r=>r.json())
   .then(d=>{
-    alert(JSON.stringify(d));
+
+    if(d.status==="found"){
+      
+      if(d.type==="reverse_age"){
+        showPopup("🔄 REVERSE AGE MATCH FOUND",
+          `Name: ${d.name}\nAge: ${d.age}\nPlace: ${d.place}`);
+      } else {
+        showPopup("✅ MATCH FOUND",
+          `Name: ${d.name}\nAge: ${d.age}\nPlace: ${d.place}`);
+      }
+
+    }
+
+    else if(d.status==="not found"){
+      showPopup("❌ NOT FOUND", "No matching child detected.");
+    }
+
+    else if(d.status==="no face"){
+      showPopup("⚠️ ERROR", "No face detected in image.");
+    }
+
+    else if(d.status==="no data"){
+      showPopup("⚠️ ERROR", "No children registered.");
+    }
+
+    else{
+      showPopup("❌ ERROR", "Something went wrong.");
+    }
+
+  })
+  .catch(()=>{
+    showPopup("❌ ERROR","Server error");
   });
 }
