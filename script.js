@@ -3,6 +3,7 @@ const API = "https://b1-7uce.onrender.com";
 let userEmail = "";
 let isAdmin = false;
 
+/* ---------------- PAGE SWITCH ---------------- */
 function showPage(page){
   document.querySelectorAll(".page").forEach(p=>p.style.display="none");
   document.getElementById(page).style.display="block";
@@ -11,7 +12,18 @@ function showPage(page){
 }
 showPage("login");
 
-/* SIGNUP */
+/* ---------------- MODAL ---------------- */
+function showModal(title, message){
+  document.getElementById("modalTitle").innerText = title;
+  document.getElementById("modalText").innerText = message;
+  document.getElementById("resultModal").style.display = "flex";
+}
+
+function closeModal(){
+  document.getElementById("resultModal").style.display = "none";
+}
+
+/* ---------------- SIGNUP ---------------- */
 function signup(){
   fetch(API+"/signup",{
     method:"POST",
@@ -26,7 +38,7 @@ function signup(){
   .then(()=>showPage("login"));
 }
 
-/* LOGIN */
+/* ---------------- LOGIN ---------------- */
 function login(){
   fetch(API+"/login",{
     method:"POST",
@@ -50,7 +62,7 @@ function login(){
   });
 }
 
-/* LOAD CHILDREN */
+/* ---------------- LOAD CHILDREN ---------------- */
 function loadChildren(){
   fetch(API+"/get_children")
   .then(r=>r.json())
@@ -61,24 +73,26 @@ function loadChildren(){
     data.forEach(x=>{
       let div=document.createElement("div");
       div.className="childCard";
+
       div.innerHTML=`
         <h4>${x.name}</h4>
         <p>${x.age}</p>
         <p>${x.place}</p>
         ${isAdmin?`<button onclick="deleteChild(${x.id})">Delete</button>`:""}
       `;
+
       c.appendChild(div);
     });
   });
 }
 
-/* DELETE */
+/* ---------------- DELETE ---------------- */
 function deleteChild(id){
   fetch(API+"/delete_child/"+id,{method:"DELETE"})
   .then(()=>loadChildren());
 }
 
-/* REGISTER */
+/* ---------------- REGISTER ---------------- */
 function registerChild(){
   let f=new FormData();
   f.append("name",child_name.value);
@@ -89,20 +103,12 @@ function registerChild(){
   fetch(API+"/register_child",{method:"POST",body:f})
   .then(()=>showPage("dashboard"));
 }
-function showPopup(title, message){
-  document.getElementById("popup-title").innerText = title;
-  document.getElementById("popup-message").innerText = message;
-  document.getElementById("popup").classList.remove("hidden");
-}
 
-function closePopup(){
-  document.getElementById("popup").classList.add("hidden");
-}
-/* CROSSCHECK */
+/* ---------------- CROSSCHECK ---------------- */
 function crossCheck(){
 
   if(!check_photo.files[0]){
-    alert("Upload image first");
+    showModal("⚠️ ERROR","Upload image first");
     return;
   }
 
@@ -113,41 +119,37 @@ function crossCheck(){
   .then(r=>r.json())
   .then(d=>{
 
-  if(d.status==="found"){
+    if(d.status==="found"){
 
-    if(d.type==="reverse_age"){
-      showModal("🔄 REVERSE AGE MATCH FOUND",
-        `Name: ${d.name}\nAge: ${d.age}\nPlace: ${d.place}`);
-    } else {
-      showModal("✅ MATCH FOUND",
-        `Name: ${d.name}\nAge: ${d.age}\nPlace: ${d.place}`);
+      if(d.type==="reverse_age"){
+        showModal("🔄 REVERSE AGE MATCH FOUND",
+          `Name: ${d.name}\nAge: ${d.age}\nPlace: ${d.place}`);
+      } else {
+        showModal("✅ MATCH FOUND",
+          `Name: ${d.name}\nAge: ${d.age}\nPlace: ${d.place}`);
+      }
+
     }
 
-  }
+    else if(d.status==="not found"){
+      showModal("❌ NOT FOUND","No match found.");
+    }
 
-  else if(d.status==="not found"){
-    showModal("❌ NOT FOUND","No match found.");
-  }
+    else if(d.status==="no face"){
+      showModal("⚠️ ERROR","No face detected.");
+    }
 
-  else if(d.status==="no face"){
-    showModal("⚠️ ERROR","No face detected.");
-  }
+    else if(d.status==="no data"){
+      showModal("⚠️ ERROR","No children in database.");
+    }
 
-  else if(d.status==="no data"){
-    showModal("⚠️ ERROR","No children in database.");
-  }
+    else{
+      showModal("❌ ERROR","Something went wrong.");
+    }
 
-  else{
-    showModal("❌ ERROR","Something went wrong.");
-  }
+  })
+  .catch(()=>{
+    showModal("❌ ERROR","Server error");
+  });
 
-})
-function showModal(title, message){
-  document.getElementById("modalTitle").innerText = title;
-  document.getElementById("modalText").innerText = message;
-  document.getElementById("resultModal").style.display = "flex";
-}
-
-function closeModal(){
-  document.getElementById("resultModal").style.display = "none";
 }
