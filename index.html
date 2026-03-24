@@ -13,7 +13,7 @@
 <!-- LOGIN -->
 <div class="container page" id="login">
   <h2>Login</h2>
-  <input id="login_email" type="text" placeholder="Email / Admin Name">
+  <input id="login_email" placeholder="Email / Admin Name">
   <input id="login_pass" type="password" placeholder="Password">
   <button onclick="login(event)">Login</button>
   <p>No account?</p>
@@ -23,19 +23,20 @@
 <!-- SIGNUP -->
 <div class="container page" id="signup">
   <h2>Create Account</h2>
-  <input id="su_name" type="text" placeholder="Name">
-  <input id="su_email" type="email" placeholder="Email">
+  <input id="su_name" placeholder="Name">
+  <input id="su_email" placeholder="Email">
   <input id="su_pass" type="password" placeholder="Password">
-  <button onclick="signup(event)">Create Account</button>
+  <button onclick="signup(event)">Create</button>
   <button onclick="showPage('login')">Back</button>
 </div>
 
 <!-- DASHBOARD -->
 <div class="container page" id="dashboard">
   <h2>Dashboard</h2>
+
   <button onclick="showPage('register')">Register Child</button>
   <button onclick="showPage('crosscheck')">Check Image</button>
-  <button onclick="showPage('video')">Scan CCTV Video</button>
+  <button onclick="showPage('video')">CCTV Detection</button>
 
   <h3>Children Data</h3>
   <div id="childrenContainer" class="childrenGrid"></div>
@@ -44,9 +45,9 @@
 <!-- REGISTER -->
 <div class="container page" id="register">
   <h2>Register Missing Child</h2>
-  <input id="child_name" type="text" placeholder="Name">
+  <input id="child_name" placeholder="Name">
   <input id="child_age" type="number" placeholder="Age">
-  <input id="child_place" type="text" placeholder="Place / Contact">
+  <input id="child_place" placeholder="Place / Contact">
   <input id="child_photo" type="file">
   <button onclick="registerChild(event)">Submit</button>
   <button onclick="showPage('dashboard')">Back</button>
@@ -54,13 +55,13 @@
 
 <!-- IMAGE CHECK -->
 <div class="container page" id="crosscheck">
-  <h2>Check Image</h2>
+  <h2>Cross Check Image</h2>
   <input id="check_photo" type="file">
   <button onclick="crossCheck(event)">Check</button>
   <button onclick="showPage('dashboard')">Back</button>
 </div>
 
-<!-- VIDEO CHECK -->
+<!-- VIDEO -->
 <div class="container page" id="video">
   <h2>CCTV Video Detection</h2>
   <input id="video_file" type="file">
