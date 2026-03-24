@@ -113,36 +113,41 @@ function crossCheck(){
   .then(r=>r.json())
   .then(d=>{
 
-    if(d.status==="found"){
-      
-      if(d.type==="reverse_age"){
-        showPopup("🔄 REVERSE AGE MATCH FOUND",
-          `Name: ${d.name}\nAge: ${d.age}\nPlace: ${d.place}`);
-      } else {
-        showPopup("✅ MATCH FOUND",
-          `Name: ${d.name}\nAge: ${d.age}\nPlace: ${d.place}`);
-      }
+  if(d.status==="found"){
 
+    if(d.type==="reverse_age"){
+      showModal("🔄 REVERSE AGE MATCH FOUND",
+        `Name: ${d.name}\nAge: ${d.age}\nPlace: ${d.place}`);
+    } else {
+      showModal("✅ MATCH FOUND",
+        `Name: ${d.name}\nAge: ${d.age}\nPlace: ${d.place}`);
     }
 
-    else if(d.status==="not found"){
-      showPopup("❌ NOT FOUND", "No matching child detected.");
-    }
+  }
 
-    else if(d.status==="no face"){
-      showPopup("⚠️ ERROR", "No face detected in image.");
-    }
+  else if(d.status==="not found"){
+    showModal("❌ NOT FOUND","No match found.");
+  }
 
-    else if(d.status==="no data"){
-      showPopup("⚠️ ERROR", "No children registered.");
-    }
+  else if(d.status==="no face"){
+    showModal("⚠️ ERROR","No face detected.");
+  }
 
-    else{
-      showPopup("❌ ERROR", "Something went wrong.");
-    }
+  else if(d.status==="no data"){
+    showModal("⚠️ ERROR","No children in database.");
+  }
 
-  })
-  .catch(()=>{
-    showPopup("❌ ERROR","Server error");
-  });
+  else{
+    showModal("❌ ERROR","Something went wrong.");
+  }
+
+})
+function showModal(title, message){
+  document.getElementById("modalTitle").innerText = title;
+  document.getElementById("modalText").innerText = message;
+  document.getElementById("resultModal").style.display = "flex";
+}
+
+function closeModal(){
+  document.getElementById("resultModal").style.display = "none";
 }
