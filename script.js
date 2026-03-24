@@ -1,0 +1,146 @@
+const API = "https://missingchild1.onrender.com"; // change if needed
+
+let isAdmin = false;
+
+/* PAGE SWITCH */
+function showPage(page){
+  document.querySelectorAll(".page").forEach(p=>p.style.display="none");
+  document.getElementById(page).style.display="block";
+  if(page==="dashboard") loadChildren();
+}
+
+showPage("login");
+
+/* SIGNUP */
+function signup(){
+  fetch(API+"/signup",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      name:su_name.value,
+      email:su_email.value,
+      password:su_pass.value
+    })
+  })
+  .then(r=>r.json())
+  .then(d=>alert(d.message));
+}
+
+/* LOGIN */
+function login(){
+  fetch(API+"/login",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      email:login_email.value,
+      password:login_pass.value
+    })
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    if(d.status==="admin"){
+      isAdmin=true;
+      alert("Admin Login");
+      showPage("dashboard");
+    }
+    else if(d.status==="user"){
+      isAdmin=false;
+      alert("User Login");
+      showPage("dashboard");
+    }
+    else{
+      alert("Login Failed");
+    }
+  });
+}
+
+/* LOAD CHILDREN */
+function loadChildren(){
+  fetch(API+"/get_children")
+  .then(r=>r.json())
+  .then(data=>{
+    childrenContainer.innerHTML="";
+    data.forEach(c=>{
+      let div=document.createElement("div");
+      div.className="childCard";
+
+      let delBtn = isAdmin ? `<button onclick="del(${c.id})">Delete</button>` : "";
+
+      div.innerHTML = `
+        <h4>${c.name}</h4>
+        <p>Age: ${c.age}</p>
+        <p>${c.place}</p>
+        ${delBtn}
+      `;
+
+      childrenContainer.appendChild(div);
+    });
+  });
+}
+
+/* DELETE */
+function del(id){
+  if(!confirm("Delete child?")) return;
+
+  fetch(API+"/delete_child/"+id,{method:"DELETE"})
+  .then(()=>loadChildren());
+}
+
+/* REGISTER CHILD */
+function registerChild(){
+  let f=new FormData();
+  f.append("name",child_name.value);
+  f.append("age",child_age.value);
+  f.append("place",child_place.value);
+  f.append("photo",child_photo.files[0]);
+
+  fetch(API+"/register_child",{method:"POST",body:f})
+  .then(()=>showPage("dashboard"));
+}
+
+/* IMAGE CHECK */
+function crossCheck(){
+  let f=new FormData();
+  f.append("photo",check_photo.files[0]);
+
+  fetch(API+"/crosscheck",{method:"POST",body:f})
+  .then(r=>r.json())
+  .then(d=>{
+    showPage("result");
+
+    if(d.status==="found"){
+      result_text.innerHTML =
+        d.match_type==="age_progression" ?
+        "AGE PROGRESSION MATCH FOUND" :
+        "MATCH FOUND";
+
+      family_details.innerHTML =
+        `Name: ${d.name}<br>Age: ${d.age}<br>Place: ${d.place}`;
+    }
+    else if(d.status==="no face"){
+      result_text.innerHTML="NO FACE DETECTED";
+      family_details.innerHTML="";
+    }
+    else{
+      result_text.innerHTML="NOT FOUND";
+      family_details.innerHTML="";
+    }
+  });
+}
+
+/* VIDEO DETECTION */
+function detectVideo(){
+  let f=new FormData();
+  f.append("video",video_file.files[0]);
+
+  fetch(API+"/detect_video",{method:"POST",body:f})
+  .then(r=>r.json())
+  .then(d=>{
+    if(d.status==="found"){
+      alert("MATCH FOUND IN VIDEO");
+      console.log(d.results);
+    }else{
+      alert("No match found in video");
+    }
+  });
+}
